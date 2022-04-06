@@ -3,7 +3,7 @@
 
 @title{Coroutines}
 @author{Jacob J. A. Koot}
-@(defmodule "coroutines.rkt" #:packages ())
+@(defmodule coroutines/coroutines #:packages ())
 
 @section{Flow control}
 
