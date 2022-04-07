@@ -36,10 +36,11 @@ Proceed as follows:
 @defproc[
 (coroutine-constr
  (proc-maker
-  (-> (-> any/c ... any)
-      (-> any/c ... any)
-      coroutine-constr?
-      (-> any/c ... any)))
+  ((-> any/c ... any)
+   (-> any/c ... any)
+   coroutine-constr?
+   . -> .
+   (-> any/c ... any)))
  (terminator (-> any/c ... any) values))
 (and/c coroutine-constr? (-> coroutine?))]{
                                            
