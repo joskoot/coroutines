@@ -249,6 +249,7 @@ when comparing long fringes that differ in early stage.
 @Interaction[
 (code:line)
 (define (make-flatten counter)
+ (code:comment "counter is a box used as a call by reference argument.")
  (co-lambda () (flatten x)
   (set-box! counter (add1 (unbox counter)))
   (cond
@@ -268,15 +269,17 @@ when comparing long fringes that differ in early stage.
   (cond
    ((and (null? x) (null? y)))
    ((or (null? x) (null? y)) #f)
-   ((eq? x y) (loop (flatten-x) (flatten-y)))
+   ((equal? x y) (loop (flatten-x) (flatten-y)))
    (else #f))))
 (code:line)
-(equal-fringe? '(a b c) '((a) (b) (c)))
-(values (unbox count-x) (unbox count-y))
+(define (call-equal-fringe? x y)
+ (set-box! count-x 0)
+ (set-box! count-y 0)
+ (values (equal-fringe? x y) (unbox count-x) (unbox count-y)))
 (code:line)
-(set-box! count-x 0)
-(set-box! count-y 0)
-(equal-fringe? '(a b c) '(x (a) (b) (c)))
-(values (unbox count-x) (unbox count-y))]
+(call-equal-fringe? '(a b c) '((a) ((b) ((c)))))
+(call-equal-fringe? '(a b c p q r s) '(a b c p q r S))
+(call-equal-fringe? '(a b c p q r s) '(a b c P q r s))
+(call-equal-fringe? '(a b c d e f) '((A) b c d e f))]
 
 @bold{@larger{@larger{The end}}}
