@@ -29,7 +29,8 @@ Proceed as follows:
  @item{The @itt{coroutine} can be called again:@(lb)
        @(hspace 3)@itt{(coroutine arg ...)}@(lb)
        The continuation of item 4 is called with multiple value @itt{(@nbr[values] arg ...)}}
- @item{After a coroutine has returned normally, it cannot be called again.}
+ @item{After a coroutine has returned normally, it cannot be called again.@(lb)
+       A coroutine that never returns normally, can be called ad infinitum.}
  @item{A coroutine-constructor can be called repeatedly for multiple instances of the coroutine.
        It can be called by the coroutine itself too for nested instances.}]}
 
@@ -48,9 +49,12 @@ The arguments given to the @nbr[proc-maker] are:
                            
 @inset{
  @itemlist[#:style 'ordered
- @item{@itt{return}@(lb)For return and allowing the coroutine to be called again.}
- @item{@itt{finish}@(lb)For return and prohibiting the coroutine to be called again.}
- @item{@itt{constr}@(lb)The constructor as returned by procedure @nbr[coroutine-constr].@(lb)
+ @item{@(list @itt{return}" : "(nbr (-> any/c ... any)))@(lb)
+       For return and allowing the coroutine to be called again.}
+ @item{@(list @itt{finish}" : "(nbr (-> any/c ... any)))@(lb)
+       For return and prohibiting the coroutine to be called again.}
+ @item{@(list @itt{constr}" : "@(nbr coroutine?))@(lb)
+       The constructor as returned by procedure @nbr[coroutine-constr].@(lb)
        Can be used to make nested coroutines.}]}
 
 The @nbr[proc-maker] is supposed to return a procedure. It is not yet called.
@@ -82,8 +86,7 @@ other instances of the coroutine to be used within @itt{proc}.}
          (#:finish finish-id terminator)
          (#:constr constr-id))
  (header (name arg ...)
-         (name arg ...+ . rest-arg)
-         rest-arg)
+         (name arg ... . rest-arg))
  (name id)
  (arg id (id default-expr) #,(itt "keyword id") #,(itt "keyword (id default-expr)"))
  (rest-arg id))
