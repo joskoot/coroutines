@@ -81,10 +81,12 @@ other instances of the coroutine to be used within @itt{proc}.}
          (#:finish finish-id)
          (#:finish finish-id terminator)
          (#:constr constr-id))
- (header (name . args))
+ (header (name arg ...)
+         (name arg ...+ . rest-arg)
+         rest-arg)
  (name id)
- (args (arg ...) (arg ...+ rest-id) rest-id)
- (arg id (id default-expr) #,(itt "keyword id") #,(itt "keyword (id default-expr)")))
+ (arg id (id default-expr) #,(itt "keyword id") #,(itt "keyword (id default-expr)"))
+ (rest-arg id))
 #:contracts
 ((terminator (-> any/c ... any)))]{
 Defaults:
