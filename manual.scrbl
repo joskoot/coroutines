@@ -259,8 +259,8 @@ when comparing long fringes that differ in early stage.
   (code:comment "Return empty list when no more atoms can be found.")
   '()))
 (code:line)
-(define count-x (box 0))
-(define count-y (box 0))
+(define count-x (box 'yet-to-be-assigned))
+(define count-y (box 'yet-to-be-assigned))
 (code:line)
 (define (equal-fringe? x y)
  (define flatten-x ((make-flatten count-x)))
@@ -277,9 +277,9 @@ when comparing long fringes that differ in early stage.
  (set-box! count-y 0)
  (values (equal-fringe? x y) (unbox count-x) (unbox count-y)))
 (code:line)
-(call-equal-fringe? '(a b c) '((a) ((b) ((c)))))
-(call-equal-fringe? '(a b c p q r s) '(a b c p q r S))
-(call-equal-fringe? '(a b c p q r s) '(a b c P q r s))
-(call-equal-fringe? '(a b c d e f) '((A) b c d e f))]
+(code:line (call-equal-fringe? '(a b c) '((a) ((b) ((c))))) (code:comment #,(green "ok")))
+(code:line (call-equal-fringe? '(a b c p q r s) '(a b c p q r S)) (code:comment #,(red "no")))
+(code:line (call-equal-fringe? '(a b c p q r s) '(a b c P q r s)) (code:comment #,(red "no")))
+(code:line (call-equal-fringe? '(a b c d e f) '((A) b c d e f)) (code:comment #,(red "no")))]
 
 @bold{@larger{@larger{The end}}}
