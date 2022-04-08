@@ -79,16 +79,18 @@ In this case returns and repeated calls can be made ad infinitum.
 Argument @itt{constr} is given the coroutine-constructor and can be used to prepare
 other instances of the coroutine to be used within @itt{proc}.}
 
+@(require (only-in scribble/core element))
+
 @defform[(co-lambda (binding ...) header body ...)
 #:grammar
-((binding (#:return return-id)
-         (#:finish finish-id)
-         (#:finish finish-id terminator)
-         (#:constr constr-id))
+((binding (code:line #:return return-id)
+          (code:line #:finish finish-id)
+          (code:line #:finish finish-id terminator)
+          (code:line #:constr constr-id))
  (header (name arg ...)
          (name arg ... . rest-arg))
  (name id)
- (arg id (id default-expr) #,(itt "keyword id") #,(itt "keyword (id default-expr)"))
+ (arg id (id default-expr) (code:line keyword id) (code:line keyword (id default-expr)))
  (rest-arg id))
 #:contracts
 ((terminator (-> any/c ... any)))]{
@@ -106,7 +108,7 @@ Expanded to:
 @racketblock[
 (coroutine-constr
  (λ (return-id finish-id constr-id)
-  (define (name arg ... [· rest-id]) body ...)
+  (define (name arg ... [· rest-arg]) body ...)
   name)
  terminator)]}
 
