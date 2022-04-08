@@ -149,7 +149,7 @@ The returned return-procedure is called outside the dynamic extent of the corout
 
 Example of a coroutine that never expires.
 Disregarding the memory required for bigger and bigger natural numbers,
-the coroutine runs in constant space because the coroutine calls itself in tail position.
+the coroutine runs in constant space because it calls itself in tail position.
 
 @Interaction[
 (define fibonacci
