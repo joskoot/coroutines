@@ -147,15 +147,16 @@ The coroutine-constructor is called returning a coroutine.@(lb)
 The coroutine is called. It immediately returns the return-procedure.@(lb)
 The returned return-procedure is called outside the dynamic extent of the coroutine.}
 
-A coroutine that never expires.
-It runs in constant space because the coroutine calls itself in tail position.
+Example of a coroutine that never expires.
+Disregarding the memory required for bigger and bigger natural numbers,
+the coroutine runs in constant space because the coroutine calls itself in tail position.
 
 @Interaction[
 (define fibonacci
  ((co-lambda () (fibonacci #:first (n 0) #:second (m 1))
   (return n)
   (fibonacci #:first m #:second (+ n m)))))
-(for/list ((k (in-range 10))) (fibonacci))]}
+(for/list ((k (in-range 20))) (fibonacci))]}
 
 @section{Examples}
 
