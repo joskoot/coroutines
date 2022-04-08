@@ -139,6 +139,14 @@ while the coroutine is inactive.
 @Interaction[
 ((((co-lambda () (wrong) (return return)))))]
 
+@note{
+In the above example the following happens in order@(lb)
+from inside to outside of the nested expression:@(lb)
+The @nbr[co-lambda]-form produces a coroutine-constructor.@(lb)
+The coroutine-constructor is called returning a coroutine.@(lb)
+The coroutine is called. It immediately returns the return-procedure.@(lb)
+The returned return-procedure is called outside the dynamic extent of the coroutine.}
+
 A coroutine that never expires.
 It runs in constant space because the coroutine calls itself in tail position.
 
