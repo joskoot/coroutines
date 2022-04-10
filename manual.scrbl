@@ -28,7 +28,7 @@ Proceed as follows:
       This returns the multiple value @itt{(@nbr[values] value ...)}}
  @item{The @itt{coroutine} can be called again:@(lb)
        @(hspace 3)@itt{(coroutine arg ...)}@(lb)
-       The continuation of item 4 is called with multiple value @itt{(@nbr[values] arg ...)}}
+       The continuation of item 4 is called with the arguments @itt{arg ...}}
  @item{After a coroutine has returned normally, it cannot be called again.@(lb)
        A coroutine that never returns normally, can be called ad infinitum.}
  @item{A coroutine-constructor can be called repeatedly for multiple instances of the coroutine.
@@ -57,14 +57,14 @@ The arguments given to the @nbr[proc-maker] are:
        The constructor as returned by procedure @nbr[coroutine-constr].@(lb)
        Can be used to make nested coroutines.}]}
 
-The @nbr[proc-maker] is supposed to return a procedure. It is not yet called.
-When the produced coroutine-constructor is called, a coroutine is returned,
-but the @itt{proc-maker} still is not called.
+@nbr[coroutine-constr] returns a coroutine constructor.
+It does not yet call the @nbr[proc-maker].
+The latter is called when the produced coroutine-constructor is called and
+receives the arguments @itt{return}, @itt{finish} and @itt{constr}.
+It is supposed to return a procedure, say @itt{proc}.
+The constructor returns an instance of a coroutine.
 The first time the coroutine is called
-the @racket[proc-maker] is called with the arguments
-@itt{return}, @itt{finish} and @itt{constr}.
-Let @itt{proc} be the procedure returned by the @racket[proc-maker].
-Now @itt{proc} is called with the arguments that where given to the coroutine.
+the @itt{proc} is called with the arguments given to the coroutine.
 The @itt{proc} can use @itt{return} in which case the coroutine returns with the values
 given to @itt{return}.
 When the coroutine is called again, it continues with the continuation of the @itt{return}-form.
@@ -113,7 +113,9 @@ Expanded to:
  terminator)]}
 
 @nbr[name], @nbr[return-id], @nbr[finish-id] and @nbr[constr-id]
-are bound within procedure @nbr[name].}
+are bound within procedure @nbr[name].
+@nb{The @nbr[define]-form} ensures that procedure @nbr[name]
+can call itself recursively.}
 
 @defproc[#:kind "predicate" (coroutine-constr? (arg any/c)) boolean?]
 
@@ -156,7 +158,10 @@ the coroutine runs in constant space because it calls itself in tail position.
  ((co-lambda () (fibonacci #:first (n 0) #:second (m 1))
   (return n)
   (fibonacci #:first m #:second (+ n m)))))
-(for/list ((k (in-range 20))) (fibonacci))]}
+(for/list ((k (in-range 20))) (fibonacci))]
+
+When a coroutine exits from its dynamic content by calling a continuation
+located outside its dynamic extent, it remains active.}
 
 @section{Examples}
 
