@@ -60,7 +60,7 @@ The arguments given to the @nbr[proc-maker] are:
        The constructor as returned by procedure @nbr[coroutine-constr].@(lb)
        Can be used to make nested coroutines.}]}
 
-@nbr[coroutine-constr] returns a coroutine constructor.
+Procedure @nbr[coroutine-constr] returns a coroutine-constructor.
 It does not yet call the @nbr[proc-maker].
 The latter is called when the produced coroutine-constructor is called and
 receives the arguments @itt{return}, @itt{finish} and @itt{constr}.
@@ -147,21 +147,30 @@ while the coroutine is inactive.
 @note{
 In the above example the following happens in order@(lb)
 from inside to outside of the nested expression:@(lb)
-The @nbr[co-lambda]-form produces a coroutine-constructor.@(lb)
-The coroutine-constructor is called returning a coroutine.@(lb)
-The coroutine is called. It immediately returns the return-procedure.@(lb)
-The returned return-procedure is called outside the dynamic extent of the coroutine.}
+4: The @nbr[co-lambda]-form produces a coroutine-constructor.@(lb)
+3: The coroutine-constructor is called returning a coroutine.@(lb)
+2: The coroutine is called. It immediately returns the return-procedure.@(lb)
+1: The returned return-procedure is called outside the dynamic extent of the coroutine.}
+
+Calling a coroutine after it has expired yields an error too:
+
+@Interaction[
+(define c ((co-lambda (#:finish f +) (c) (values 1 2 3))))
+(coroutine-state c)
+(c)
+(coroutine-state c)
+(c)]
 
 Example of a coroutine that never expires.
-Disregarding the memory required for bigger and bigger natural numbers,
-the coroutine runs in constant space because it calls itself in tail position.
+Disregarding the memory required for ever increasing natural numbers,
+the coroutine runs in constant space because procedure @tt{fibonacci} calls itself in tail position.
 
 @Interaction[
 (define fibonacci
- ((co-lambda () (fibonacci #:first (n 0) #:second (m 1))
-  (return n)
-  (fibonacci #:first m #:second (+ n m)))))
-(for/list ((k (in-range 20))) (fibonacci))]
+ ((co-lambda (#:return deliver) (fibonacci FIRST SECOND)
+  (deliver FIRST)
+  (fibonacci SECOND (+ FIRST SECOND)))))
+(cons (fibonacci 0 1) (for/list ((k (in-range 20))) (fibonacci)))]
 
 When a coroutine exits from its dynamic content by calling a continuation
 located outside its dynamic extent, it remains active.}
@@ -191,12 +200,12 @@ A flattener (not protected against circular lists):
 (define make-flattener
  (coroutine-constr
   (lambda (return finish constr)
-   (define (flatten x)
+   (define (FLATTEN x)
     (cond
      ((null? x) (values))
-     ((pair? x) (flatten (car x)) (flatten (cdr x)))
+     ((pair? x) (FLATTEN (car x)) (FLATTEN (cdr x)))
      (else (return x))))
-   flatten)))
+   FLATTEN)))
 
 (define flattener (make-flattener))
 
@@ -213,20 +222,20 @@ A flattener made with @nbr[co-lambda] (not protected against circular lists):
 
 @Interaction[
 (define make-flatten
- (co-lambda () (flatten x)
+ (co-lambda () (FLATTEN x)
   (cond
    ((null? x))
-   ((pair? x) (flatten (car x)) (flatten (cdr x)))
+   ((pair? x) (FLATTEN (car x)) (FLATTEN (cdr x)))
    (else (return x)))
   'end))
-(define flatten (make-flatten))
-(flatten '((a (b c) . d) e () (()) . f))
-(flatten)
-(flatten)
-(flatten)
-(flatten)
-(flatten)
-(flatten)]
+(define FLATTEN (make-flatten))
+(FLATTEN '((a (b c) . d) e () (()) . f))
+(FLATTEN)
+(FLATTEN)
+(FLATTEN)
+(FLATTEN)
+(FLATTEN)
+(FLATTEN)]
 
 @subsection{Implied finish-call}
 
@@ -269,11 +278,11 @@ when comparing long fringes that differ in early stage.
 (code:line)
 (define (make-flatten counter)
  (code:comment "counter is a box used as a call by reference argument.")
- (co-lambda () (flatten x)
+ (co-lambda () (FLATTEN x)
   (set-box! counter (add1 (unbox counter)))
   (cond
    ((null? x))
-   ((pair? x) (flatten (car x)) (flatten (cdr x)))
+   ((pair? x) (FLATTEN (car x)) (FLATTEN (cdr x)))
    (else (return x)))
   (code:comment "Return empty list when no more atoms can be found.")
   '()))

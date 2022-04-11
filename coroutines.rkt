@@ -13,7 +13,7 @@
  (define (constr)
          
   (define (entry . args)
-   (call-with-values (λ () (apply (proc-maker return finish constr) args)) finish))
+   (call-with-values (λ () (apply proc args)) finish))
   
   (define exit 'disabled-exit)
   
@@ -30,15 +30,26 @@
   (define (finish . last-values)
    (let ((last-values (call-with-values (lambda () (apply terminator last-values)) list)))
     (toggle-control exit last-values expired-entry expired-exit 'active 'expired 'finish-call)))
-  
+
   (define (toggle-control entry/exit values new-entry new-exit required-state new-state call-type)
-   (unless (eq? state required-state) (wrong-entry state required-state values))
+   (unless (eq? state required-state) (wrong-entry state required-state values call-type))
    (set! state new-state) (set! entry new-entry) (set! exit new-exit)
    (apply entry/exit values))
-  
+
+  (define proc (proc-maker return finish constr))
   (make-coroutine coroutine (lambda () state)))
  
  (make-coroutine-constr constr))
+
+(define (disabled-entry . args) (wrong-entry 'disabled 'inactive args 'coroutine-call))
+(define (disabled-exit  . args) (wrong-entry 'inactive 'active   args 'return-call))
+(define (expired-entry  . args) (wrong-entry 'expired  'inactive args 'coroutine-call))
+(define (expired-exit   . args) (wrong-entry 'expired  'active   args 'return-call))
+
+(define (wrong-entry state required-state values call-type)
+ (error 'coroutine
+  "~a:~n   required state: ~s,~n   actual state: ~s,~n   args: ~s"
+  call-type required-state state values))
 
 ;-----------------------------------------------------------------------------------------------------
 
@@ -67,14 +78,6 @@
   (make-sibling-inspector)
   0      ; the struct is a procedure as containned in field 0.
   '(1)))
-
-(define (disabled-entry . args) (wrong-entry 'disabled 'inactive args))
-(define (disabled-exit  . args) (wrong-entry 'inactive 'active   args))
-(define (expired-entry  . args) (wrong-entry 'expired  'inactive args))
-(define (expired-exit   . args) (wrong-entry 'expired  'active   args))
-
-(define (wrong-entry state required-state values)
- (error 'coroutine "required state: ~s, actual state: ~s, args: ~s" required-state state values))
 
 ;-----------------------------------------------------------------------------------------------------
 
@@ -129,4 +132,3 @@
       terminator))))))
 
 ;-----------------------------------------------------------------------------------------------------
-

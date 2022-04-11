@@ -97,4 +97,17 @@
 @(define (Rckt) (nbhl "https://docs.racket-lang.org/reference/index.html" "Racket"))
 
 @(define (keyword . x)
-         (apply seclink "keywords" #:doc '(lib "scribblings/reference/reference.scrbl") x)) 
+         (apply seclink "keywords" #:doc '(lib "scribblings/reference/reference.scrbl") x))
+
+@(require (only-in scribble/racket make-element-id-transformer))
+@(define-syntax FIRST
+  (make-element-id-transformer
+   (lambda _ #'(tt "first"))))
+
+@(define-syntax SECOND
+  (make-element-id-transformer
+   (lambda _ #'(tt "second"))))
+
+@(define-syntax FLATTEN
+  (make-element-id-transformer
+   (lambda _ #'(tt "flatten"))))
