@@ -20,7 +20,7 @@ Proceed as follows:
 @itemlist[#:style 'ordered
  @item{Make a coroutine-constructor with procedure @nbr[coroutine-constr]
        @nb{or macro @nbr[co-lambda].}}
- @item{Use the constructor to make a coroutine.@(lb)
+ @item{Use the constructor to make a coroutine, say @itt{coroutine}.@(lb)
        The constructor accepts no arguments.}
  @item{A coroutine receives arguments when called for the first time.}
  @item{It can return by calling the @itt{return} procedure:@(lb)
@@ -29,8 +29,11 @@ Proceed as follows:
  @item{The @itt{coroutine} can be called again:@(lb)
        @(hspace 3)@itt{(coroutine arg ...)}@(lb)
        The continuation of item 4 is called with the arguments @itt{arg ...}}
- @item{After a coroutine has returned normally, it cannot be called again.@(lb)
-       A coroutine that never returns normally, can be called ad infinitum.}
+ @item{After a coroutine has returned normally it cannot be called again.
+       A coroutine can also finish by means of a @itt{finish}-procedure.
+       A coroutine that always returns by means of its @itt{return}-procedure and
+       never returns normally and never calls its @itt{finish}-procedure
+       can be called ad infinitum.}
  @item{A coroutine-constructor can be called repeatedly for multiple instances of the coroutine.
        It can be called by the coroutine itself too for nested instances.}]}
 
