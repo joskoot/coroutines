@@ -5,6 +5,9 @@
 @author{Jacob J. A. Koot}
 @(defmodule coroutines/coroutines #:packages ())
 
+Coroutines resemble generators as found in module
+@seclink["Generators" #:doc '(lib "scribblings/reference/reference.scrbl")]{racket/generator}.
+
 @section{Flow control}
 
 A coroutine is a procedure
@@ -173,7 +176,17 @@ the coroutine runs in constant space because procedure @tt{fibonacci} calls itse
 (cons (fibonacci 0 1) (for/list ((k (in-range 20))) (fibonacci)))]
 
 When a coroutine exits from its dynamic content by calling a continuation
-located outside its dynamic extent, it remains active.}
+located outside its dynamic extent, it remains active.
+
+@Interaction[
+(define coroutine #f)
+(let/cc cc
+ (set! coroutine ((co-lambda () (co) (cc 'monkey))))
+ (coroutine))
+(coroutine-state coroutine)]
+
+There are hacks to reenter a coroutine that exits to a continuation located outside its
+dynamic extent. I don't think such hacks have a purpose, though.}
 
 @section{Examples}
 
