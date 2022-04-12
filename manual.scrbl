@@ -81,7 +81,7 @@ with the arguments given to @itt{finish}. The coroutine returns the values retur
 Returning normally from @itt{proc} has the same effect as @itt{finish}
 called with the values returned normally from the @itt{proc}.
 The @itt{proc} is not required to halt by calling @itt{finish} or by returning normally.
-In this case the coroutin can be called ad infinitum.
+In this case the coroutine can be called ad infinitum.
 Argument @itt{constr} is given the coroutine-constructor and can be used to prepare
 other instances of the coroutine to be used within @itt{proc}.}
 
