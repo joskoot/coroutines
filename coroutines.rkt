@@ -47,9 +47,17 @@
 (define (expired-exit   . args) (wrong-entry 'expired  'active   args 'return-call))
 
 (define (wrong-entry state required-state values call-type)
- (error 'coroutine
-  "~a:~n   required state: ~s,~n   actual state: ~s,~n   args: ~s"
-  call-type required-state state values))
+ (cond
+  ((null? values)
+   (error 'coroutine
+    "~a:~n   required state: ~s,~n   actual state: ~s,~n   no arguments"
+    call-type required-state state))
+  (else
+   (apply error 'coroutine
+    (apply string-append
+     "~a:~n   required state: ~s,~n   actual state: ~s,~n   arguments:"
+     (make-list (length values) "~n   ~s"))
+    call-type required-state state values))))
 
 ;-----------------------------------------------------------------------------------------------------
 

@@ -149,7 +149,7 @@ while the coroutine is inactive.
 
 @note{
 In the above example the following happens in order@(lb)
-from inside to outside of the nested expression:@(lb)
+from the inner to the outer level of the nested expression:@(lb)
 4: The @nbr[co-lambda]-form produces a coroutine-constructor.@(lb)
 3: The coroutine-constructor is called returning a coroutine.@(lb)
 2: The coroutine is called. It immediately returns the return-procedure.@(lb)
