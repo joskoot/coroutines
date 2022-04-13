@@ -92,10 +92,11 @@ other instances of the coroutine to be used within @itt{proc}.}
 ((binding (code:line #:return return-id)
           (code:line #:finish finish-id)
           (code:line #:finish finish-id terminator)
+          (code:line #:finish _ terminator)
           (code:line #:constr constr-id))
  (header (name arg ...)
          (name arg ... . rest-arg))
- (name id)
+ (name id _)
  (arg id (id default-expr) (code:line keyword id) (code:line keyword (id default-expr)))
  (rest-arg id))
 #:contracts
@@ -118,10 +119,13 @@ Expanded to:
   name)
  terminator)]}
 
-@nbr[name], @nbr[return-id], @nbr[finish-id] and @nbr[constr-id]
+If @nbr[name] is an underscore @nbr[free-identifier=?] with @nbrl[_]{syntax underscore}
+a hidden hygienic identifier is chosen.
+The same holds for the @nbr[finish-id].
+The identifiers @nbr[name], @nbr[return-id], @nbr[finish-id] and @nbr[constr-id]
 are bound within procedure @nbr[name].
 @nb{The @nbr[define]-form} ensures that procedure @nbr[name]
-can call itself recursively.}
+can call itself recursively (if the @nbr[name] is not hidden)}
 
 @defproc[#:kind "predicate" (coroutine-constr? (arg any/c)) boolean?]
 

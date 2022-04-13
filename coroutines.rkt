@@ -5,6 +5,7 @@
 ; By Jacob J. A. Koot
 
 (provide coroutine-constr coroutine-constr? coroutine? coroutine-state co-lambda)
+(require (for-syntax (only-in racket/syntax generate-temporary)))
 
 ;-----------------------------------------------------------------------------------------------------
 
@@ -105,6 +106,12 @@
      (parse-bindings (hash-set hash 'return #'id) #'rest))
     ((#:finish id fun . rest)
      (and
+      (free-identifier=? #'id #'_)
+      (not (hash-has-key? hash 'finish))
+      (not (keyword? (syntax-e #'fun))))
+     (parse-bindings (hash-set* hash 'finish (generate-temporary) 'terminator #'fun) #'rest))
+    ((#:finish id fun . rest)
+     (and
       (identifier? #'id)
       (not (hash-has-key? hash 'finish))
       (not (keyword? (syntax-e #'fun))))
@@ -119,9 +126,7 @@
       (identifier? #'id)
       (not (hash-has-key? hash 'constr)))
      (parse-bindings (hash-set hash 'constr #'id) #'rest))))
-  
-  (define (generate-temp id) (car (generate-temporaries (list id))))
-  (parse-bindings (make-immutable-hash (list (cons 'terminator #'values))) stx))
+    (parse-bindings (make-immutable-hash (list (cons 'terminator #'values))) stx))
  
  (syntax-case stxx ()
   ((_ (binding ...) (name . args) . body)
@@ -132,11 +137,12 @@
      ((return return)
       (finish finish)
       (terminator terminator)
-      (constr constr))
+      (constr constr)
+      (proc-name (if (free-identifier=? #'name #'_) (generate-temporary) #'name)))
    #'(coroutine-constr
       (λ (return finish constr)
-       (define (name . args) . body)
-       name)
+       (define (proc-name . args) . body)
+       proc-name)
       terminator))))))
 
 ;-----------------------------------------------------------------------------------------------------
