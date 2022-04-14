@@ -106,12 +106,6 @@
      (parse-bindings (hash-set hash 'return #'id) #'rest))
     ((#:finish id fun . rest)
      (and
-      (free-identifier=? #'id #'_)
-      (not (hash-has-key? hash 'finish))
-      (not (keyword? (syntax-e #'fun))))
-     (parse-bindings (hash-set* hash 'finish (generate-temporary) 'terminator #'fun) #'rest))
-    ((#:finish id fun . rest)
-     (and
       (identifier? #'id)
       (not (hash-has-key? hash 'finish))
       (not (keyword? (syntax-e #'fun))))
@@ -137,12 +131,11 @@
      ((return return)
       (finish finish)
       (terminator terminator)
-      (constr constr)
-      (proc-name (if (free-identifier=? #'name #'_) (generate-temporary) #'name)))
+      (constr constr))
    #'(coroutine-constr
       (λ (return finish constr)
-       (define (proc-name . args) . body)
-       proc-name)
+       (define (name . args) . body)
+       name)
       terminator))))))
 
 ;-----------------------------------------------------------------------------------------------------

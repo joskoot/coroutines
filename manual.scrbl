@@ -92,11 +92,10 @@ other instances of the coroutine to be used within @itt{proc}.}
 ((binding (code:line #:return return-id)
           (code:line #:finish finish-id)
           (code:line #:finish finish-id terminator)
-          (code:line #:finish _ terminator)
           (code:line #:constr constr-id))
  (header (name arg ...)
          (name arg ... . rest-arg))
- (name id _)
+ (name id)
  (arg id (id default-expr) (code:line keyword id) (code:line keyword (id default-expr)))
  (rest-arg id))
 #:contracts
@@ -119,13 +118,10 @@ Expanded to:
   name)
  terminator)]}
 
-If @nbr[name] is an underscore @nbr[free-identifier=?] with @nbrl[_]{syntax underscore}
-a hidden hygienic identifier is chosen.
-The same holds for the @nbr[finish-id].
 The identifiers @nbr[name], @nbr[return-id], @nbr[finish-id] and @nbr[constr-id]
 are bound within procedure @nbr[name].
 @nb{The @nbr[define]-form} ensures that procedure @nbr[name]
-can call itself recursively (if the @nbr[name] is not hidden)}
+can call itself recursively.}
 
 @defproc[#:kind "predicate" (coroutine-constr? (arg any/c)) boolean?]
 
@@ -207,53 +203,6 @@ dynamic extent. I don't think such hacks have a purpose, though.}
 (boby "That's nice")
 (boby "I am fine")]
 
-@subsection{Flattener}
-
-A flattener (not protected against circular lists):
-
-@note{There are much faster and less memory consuming ways to make a flattener.}
-
-@Interaction*[
-(define make-flattener
- (coroutine-constr
-  (lambda (return finish constr)
-   (define (FLATTEN x)
-    (cond
-     ((null? x) (values))
-     ((pair? x) (FLATTEN (car x)) (FLATTEN (cdr x)))
-     (else (return x))))
-   FLATTEN)))
-
-(define flattener (make-flattener))
-
-(flattener '(a ((b) . c) () . d))
-(flattener)
-(flattener)
-(flattener)
-(code:comment "The flattener has no more elements to return and returns no value.")
-(flattener)
-(code:comment "The coroutine has expired and calling it again yields an error.")
-(flattener)]
-
-A flattener made with @nbr[co-lambda] (not protected against circular lists):
-
-@Interaction[
-(define make-flatten
- (co-lambda () (FLATTEN x)
-  (cond
-   ((null? x))
-   ((pair? x) (FLATTEN (car x)) (FLATTEN (cdr x)))
-   (else (return x)))
-  'end))
-(define FLATTEN (make-flatten))
-(FLATTEN '((a (b c) . d) e () (()) . f))
-(FLATTEN)
-(FLATTEN)
-(FLATTEN)
-(FLATTEN)
-(FLATTEN)
-(FLATTEN)]
-
 @subsection{Implied finish-call}
 
 @Interaction[
@@ -282,6 +231,54 @@ Tower-of-hanoi step by step:
  #:break (and (equal? disk 'end) (printf "End~n"))
  (printf "Move ~a: disk ~s from ~a to ~a.~n"
   (~s n #:align 'right #:min-width 2) disk from onto))]
+
+@subsection{Flattener}
+
+A flattener (not protected against circular lists):
+
+@note{There are much faster and less memory consuming ways to make a flattener.}
+
+@Interaction*[
+(define make-flattener
+ (coroutine-constr
+  (lambda (return finish constr)
+   (define (FLATTEN x)
+    (cond
+     ((null? x) (values))
+     ((pair? x) (FLATTEN (car x)) (FLATTEN (cdr x)))
+     (else (return x))))
+   FLATTEN)))
+
+(define flattener (make-flattener))
+
+(flattener '(a ((b) . c) () . d))
+(flattener)
+(flattener)
+(flattener)
+(code:comment "The flattener has no more elements to return and returns no value.")
+(flattener)
+(coroutine-state flattener)
+(code:comment "The coroutine has expired and calling it again yields an error.")
+(flattener)]
+
+A flattener made with @nbr[co-lambda] (not protected against circular lists):
+
+@Interaction[
+(define make-flatten
+ (co-lambda () (FLATTEN x)
+  (cond
+   ((null? x))
+   ((pair? x) (FLATTEN (car x)) (FLATTEN (cdr x)))
+   (else (return x)))
+  'end))
+(define FLATTEN (make-flatten))
+(FLATTEN '((a (b c) . d) e () (()) . f))
+(FLATTEN)
+(FLATTEN)
+(FLATTEN)
+(FLATTEN)
+(FLATTEN)
+(FLATTEN)]
 
 @subsection{Equal-fringe}
 
