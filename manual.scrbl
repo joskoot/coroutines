@@ -169,11 +169,22 @@ Disregarding the memory required for ever increasing natural numbers,
 the coroutine runs in constant space because procedure @tt{fibonacci} calls itself in tail position.
 
 @Interaction[
-(define fibonacci
- ((co-lambda (#:return deliver) (fibonacci FIRST SECOND)
+(define make-fibonacci-coroutine
+ (co-lambda (#:return deliver) (fibonacci FIRST SECOND)
   (deliver FIRST)
-  (fibonacci SECOND (+ FIRST SECOND)))))
-(cons (fibonacci 0 1) (for/list ((k (in-range 20))) (fibonacci)))]
+  (fibonacci SECOND (+ FIRST SECOND))))
+(define fibonacci-coroutine (make-fibonacci-coroutine))
+(cons (fibonacci-coroutine 0 1)
+ (for/list ((k (in-range 20))) (fibonacci-coroutine)))
+(define another-fibonacci-coroutine (make-fibonacci-coroutine))
+(cons (another-fibonacci-coroutine 2 2)
+ (for/list ((k (in-range 15))) (another-fibonacci-coroutine)))]}
+
+Procedure @tt{fibinacci} is recursive, but a coroutine cannot call itself:
+
+@Interaction[
+(define coroutine ((co-lambda () (proc) (coroutine))))
+(code:line (coroutine) (code:comment #,(red "Yields an error")))]
 
 When a coroutine exits from its dynamic content by calling a continuation
 located outside its dynamic extent, it remains active.
@@ -183,10 +194,32 @@ located outside its dynamic extent, it remains active.
 (let/cc cc
  (set! coroutine ((co-lambda () (co) (cc 'monkey))))
  (coroutine))
-(coroutine-state coroutine)]
+(coroutine-state coroutine)
+(code:line (coroutine) (code:comment #,(red "Yields an error")))]
 
 There are hacks to reenter a coroutine that exits to a continuation located outside its
-dynamic extent. I don't think such hacks have a purpose, though.}
+dynamic extent. For example:
+
+@Interaction[
+(define reenter #f)
+(define coroutine #f)
+(let/cc cc
+ (set! coroutine
+  ((co-lambda () (co)
+    (let/cc reenter
+     (return reenter)
+     (cc 'aap))
+    (return 'noot)
+    'mies)))
+ (set! reenter (coroutine))
+ (coroutine))
+(coroutine-state coroutine)
+(reenter)
+(coroutine-state coroutine)
+(coroutine)
+(coroutine-state coroutine)]
+
+I don't think such hacks have a purpose, though.
 
 @section{Examples}
 
