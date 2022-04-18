@@ -129,8 +129,8 @@ can call itself recursively.}
 
 @defproc[#:kind "predicate" (coroutine? (arg any/c)) boolean?]
 
-@defproc[(coroutine-state (coroutine coroutine?)) (or/c 'active 'inactive 'expired)]{
-                                                                                     
+@section{State}
+
 The state of a coroutine is active, inactive or expired.
 A coroutine-constructor returns an inactive coroutine.
 A coroutine can be called when it is inactive.
@@ -143,6 +143,8 @@ A normal return from the coroutine or return by means of a finish-procedure
 sets the state to expired.
 @inset{@image["states.gif" #:scale 0.75]}
 
+@defproc[(coroutine-state (coroutine coroutine?)) (or/c 'active 'inactive 'expired)]{
+                                                                                     
 The following example results in an error because @itt{return} is called
 while the coroutine is inactive.
 
@@ -248,7 +250,7 @@ I don't think such hacks have a purpose, though.
     (string-append msg " and therefore finish immediately.")))))]
 
 @subsection{Tower of Hanoi}
-Tower-of-hanoi step by step:
+Tower of Hanoi step by step:
 
 @Interaction[
 (define tower-of-hanoi
