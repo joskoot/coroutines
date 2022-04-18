@@ -49,7 +49,7 @@ Proceed as follows:
    . -> .
    (-> any/c ... any)))
  (terminator (-> any/c ... any) values))
-(and/c coroutine-constr? (-> coroutine?))]{
+(and/c procedure? coroutine-constr? (-> coroutine?))]{
                                            
 The arguments given to the @nbr[proc-maker] are:
                            
@@ -101,6 +101,7 @@ other instances of the coroutine to be used within @itt{proc}.}
  (rest-arg id))
 #:contracts
 ((terminator (-> any/c ... any)))]{
+@inset{→ @nbr[(and/c procedure? coroutine-constr? (-> coroutine?))]}
 Defaults:
 @inset{@Tabular[
 ((@nbr[return-id] @tt{return})
