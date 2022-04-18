@@ -69,6 +69,7 @@ The latter is called when the produced coroutine-constructor is called and
 receives the arguments @itt{return}, @itt{finish} and @itt{constr}.
 It is supposed to return a procedure, say @itt{proc}.
 The constructor returns an instance of a coroutine.
+The @itt{proc} can be recursive, but the coroutine cannot call itself.
 The first time the coroutine is called
 the @itt{proc} is called with the arguments given to the coroutine.
 The @itt{proc} can use @itt{return} in which case the coroutine returns with the values
@@ -153,7 +154,7 @@ from the inner to the outer level of the nested expression:@(lb)
 4: The @nbr[co-lambda]-form produces a coroutine-constructor.@(lb)
 3: The coroutine-constructor is called returning a coroutine.@(lb)
 2: The coroutine is called. It immediately returns the return-procedure.@(lb)
-1: The returned return-procedure is called outside the dynamic extent of the coroutine.}
+1: The return-procedure is called outside the dynamic extent of the coroutine.}
 
 Calling a coroutine after it has expired yields an error too:
 
@@ -208,7 +209,7 @@ dynamic extent. For example:
   ((co-lambda () (co)
     (let/cc reenter
      (return reenter)
-     (cc 'aap))
+     (cc 'aap) (error "we never get here"))
     (return 'noot)
     'mies)))
  (set! reenter (coroutine))
